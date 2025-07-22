@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS gptpult;
-CREATE USER IF NOT EXISTS 'gptpult'@'%' IDENTIFIED BY 'gptpult_password';
-GRANT ALL PRIVILEGES ON gptpult.* TO 'gptpult'@'%';
+CREATE DATABASE IF NOT EXISTS examka;
+CREATE USER IF NOT EXISTS 'examka'@'%' IDENTIFIED BY 'examka_password';
+GRANT ALL PRIVILEGES ON examka.* TO 'examka'@'%';
 FLUSH PRIVILEGES; 

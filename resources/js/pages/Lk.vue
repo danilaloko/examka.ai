@@ -674,7 +674,7 @@ const formatTransitionDate = (dateString) => {
 // Открыть Telegram бот
 const openTelegramBot = () => {
   // URL бота (замените на ваш реальный URL)
-  const botUrl = 'https://t.me/gptpult_bot';
+  const botUrl = 'https://t.me/examka_bot';
   window.open(botUrl, '_blank');
 };
 

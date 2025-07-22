@@ -18,7 +18,7 @@ if (import.meta.env.MODE !== 'production' && import.meta.env.VITE_APP_ENV !== 'p
     import('./debug/tma-debug.js');
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'GPT Пульт';
+const appName = import.meta.env.VITE_APP_NAME || 'Экзамка';
 window.TWA = window.Telegram ? window.Telegram.WebApp : null;
 
 // Глобальная функция для отладки (только в режиме разработки)

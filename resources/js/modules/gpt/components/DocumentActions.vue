@@ -405,7 +405,7 @@ const saveUserContact = async () => {
 // Открыть бот поддержки в Telegram
 const openSupportBot = () => {
     // URL бота поддержки
-    const supportBotUrl = 'https://t.me/gptpult_help';
+    const supportBotUrl = 'https://t.me/examka_help';
     window.open(supportBotUrl, '_blank');
 };
 

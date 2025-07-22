@@ -47,7 +47,7 @@ class WordDocumentService
             // Устанавливаем дополнительные настройки документа
             $this->phpWord->getDocInfo()->setTitle($this->decodeUnicodeString($document->title));
             $this->phpWord->getDocInfo()->setCreator($document->user->name);
-            $this->phpWord->getDocInfo()->setDescription('Документ сгенерирован системой GPTPult');
+            $this->phpWord->getDocInfo()->setDescription('Документ сгенерирован системой Examka');
             
             // Настройка стилей
             $this->setupStyles();

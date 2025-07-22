@@ -4,20 +4,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: gptpult-app
+    container_name: examka-app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
       - ./:/var/www
     networks:
-      - gptpult-network
+      - examka-network
     depends_on:
       db:
         condition: service_healthy
 
   nginx:
     image: nginx:alpine
-    container_name: gptpult-nginx
+    container_name: examka-nginx
     restart: unless-stopped
     ports:
       - "8000:80"
@@ -25,24 +25,24 @@ services:
       - ./:/var/www
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - gptpult-network
+      - examka-network
     depends_on:
       - app
 
   db:
     image: mysql:8.0
-    container_name: gptpult-db
+    container_name: examka-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: gptpult
+      MYSQL_DATABASE: examka
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_PASSWORD: gptpult_password
-      MYSQL_USER: gptpult
+      MYSQL_PASSWORD: examka_password
+      MYSQL_USER: examka
     volumes:
       - dbdata:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - gptpult-network
+      - examka-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
       interval: 5s
@@ -50,7 +50,7 @@ services:
       retries: 20
 
 networks:
-  gptpult-network:
+  examka-network:
     driver: bridge
 
 volumes:

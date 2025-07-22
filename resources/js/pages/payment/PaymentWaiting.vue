@@ -240,7 +240,7 @@ const handleRetry = () => {
 
 const contactSupport = () => {
     // Переход в Telegram бот поддержки
-    const supportBotUrl = 'https://t.me/gptpult_help';
+    const supportBotUrl = 'https://t.me/examka_help';
     window.open(supportBotUrl, '_blank');
 };
 

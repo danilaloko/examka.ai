@@ -5,7 +5,7 @@
                 <div class="col">
                     <div class="logo-container" @click="onLogoClick">
                         <i class="fas fa-tv"></i>
-                        <span class="logo-text">GPT Пульт</span>
+                        <span class="logo-text">Экзамка</span>
                     </div>
                 </div>
                 <div class="col text-center">

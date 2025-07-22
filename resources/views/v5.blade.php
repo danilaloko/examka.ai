@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GPT Пульт - Твой ИИ для учебы</title>
+    <title>Экзамка - Твой ИИ для учебы</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2127,7 +2127,7 @@
         <div class="header-container">
             <!-- Logo -->
             <a href="#" class="header-logo">
-                <img src="{{ asset('gptpult.svg') }}" alt="GPT Пульт">
+                <img src="{{ asset('main_logo.svg') }}" alt="Экзамка">
             </a>
 
             <!-- Navigation -->
@@ -2138,8 +2138,8 @@
 
                 <a href="#pricing" class="nav-link">Тарифы</a>
 
-                <a href="https://t.me/gptpult_bot" class="nav-link">ТГ бот</a>
-                <a href="https://t.me/gptpult_help" class="nav-link">Поддержка</a>
+                <a href="https://t.me/examka_bot" class="nav-link">ТГ бот</a>
+                <a href="https://t.me/examka_help" class="nav-link">Поддержка</a>
             </nav>
 
             <!-- Actions -->
@@ -2160,7 +2160,7 @@
             <nav class="mobile-nav">
                 <a href="#features" class="mobile-nav-item">Возможности</a>
                 <a href="#pricing" class="mobile-nav-item">Тарифы</a>
-                <a href="https://t.me/gptpult_help" class="mobile-nav-item" target="_blank">Поддержка</a>
+                <a href="https://t.me/examka_help" class="mobile-nav-item" target="_blank">Поддержка</a>
                 <a href="#contact" class="mobile-nav-item">Контакты</a>
             </nav>
             <div class="mobile-actions">
@@ -2236,7 +2236,7 @@
                         Наша платформа использует передовые технологии искусственного интеллекта для создания качественных учебных работ. Мы автоматизировали процесс написания рефератов, эссе, курсовых и других академических текстов.
                     </p>
                     <p class="service-text">
-                        GPT Пульт поможет вам сэкономить время и силы на создании академических работ, при этом гарантируя высокое качество и соответствие всем требованиям. Больше не нужно тратить недели на написание - теперь это займет всего 10 минут.
+                        Экзамка поможет вам сэкономить время и силы на создании академических работ, при этом гарантируя высокое качество и соответствие всем требованиям. Больше не нужно тратить недели на написание - теперь это займет всего 10 минут.
                     </p>
                 </div>
 
@@ -2401,7 +2401,7 @@
                         Создавайте работы прямо в Telegram. Удобные уведомления о статусе 
                         и мгновенный доступ ко всем функциям сервиса
                     </p>
-                    <a href="https://t.me/gptpult_bot" class="feature-link" target="_blank">
+                    <a href="https://t.me/examka_bot" class="feature-link" target="_blank">
                         Подключить <i class="fas fa-external-link-alt"></i>
                     </a>
                     </div>
@@ -2415,7 +2415,7 @@
                         Наша команда всегда готова помочь. Быстро ответим на вопросы 
                         и решим любые проблемы в любое время
                     </p>
-                    <a href="https://t.me/gptpult_help" class="feature-link" target="_blank">
+                    <a href="https://t.me/examka_help" class="feature-link" target="_blank">
                         Написать <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -2512,13 +2512,13 @@
             <div class="telegram-bot-content">
                 <div class="bot-info">
                     <h2 class="bot-title">
-                        Telegram-бот GPT Пульт
+                        Telegram-бот Экзамка
                     </h2>
                     <p class="bot-description">
                         Создавайте работы прямо в Telegram. Удобные уведомления о статусе 
                         и мгновенный доступ ко всем функциям сервиса
                     </p>
-                    <a href="https://t.me/gptpult_bot" class="bot-btn" target="_blank">
+                    <a href="https://t.me/examka_bot" class="bot-btn" target="_blank">
                         <i class="fab fa-telegram-plane"></i>
                         Подключить
                     </a>
@@ -2539,7 +2539,7 @@
                 Готов начать?
             </h2>
             <p class="cta-subtitle">
-                Присоединяйся к тысячам студентов, которые уже экономят время с GPT Пульт
+                Присоединяйся к тысячам студентов, которые уже экономят время с Экзамка
             </p>
             <a href="/new" class="btn-hero btn-hero-primary" onclick="saveIntendedUrl('/new')">
                 <i class="fas fa-rocket"></i>
@@ -2554,7 +2554,7 @@
             <div class="footer-grid">
                 <div>
                     <div class="footer-brand">
-                        <img src="{{ asset('gptpult.svg') }}" alt="GPT Пульт" class="footer-logo">
+                        <img src="{{ asset('main_logo.svg') }}" alt="Экзамка" class="footer-logo">
                     </div>
                     <p class="footer-description">
                         Современная платформа для создания учебных работ с помощью 
@@ -2568,14 +2568,14 @@
                         <li><a href="#features">Возможности</a></li>
                         <li><a href="#pricing">Тарифы</a></li>
                         <li><a href="/new" onclick="saveIntendedUrl('/new')">Создать работу</a></li>
-                        <li><a href="https://t.me/gptpult_bot" target="_blank">Telegram-бот</a></li>
+                        <li><a href="https://t.me/examka_bot" target="_blank">Telegram-бот</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-column">
                     <h5>Поддержка</h5>
                     <ul class="footer-links">
-                        <li><a href="https://t.me/gptpult_help" target="_blank">Помощь</a></li>
+                        <li><a href="https://t.me/examka_help" target="_blank">Помощь</a></li>
                         <li><a href="/lk" onclick="saveIntendedUrl('/lk')">Личный кабинет</a></li>
                     </ul>
                 </div>
@@ -2593,7 +2593,7 @@
                     <h5>Мы</h5>
                     <ul class="footer-links">
                         <li><a href="#features">О сервисе</a></li>
-                        <li><a href="https://t.me/gptpult_help" target="_blank">Обратная связь</a></li>
+                        <li><a href="https://t.me/examka_help" target="_blank">Обратная связь</a></li>
                     </ul>
                 </div>
             </div>
@@ -2645,7 +2645,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 GPT Пульт. Все права защищены.</p>
+                <p>&copy; 2025 Экзамка. Все права защищены.</p>
             </div>
         </div>
     </footer>

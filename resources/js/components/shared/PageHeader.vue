@@ -139,7 +139,7 @@ const onRightBtnClick = () => {
 
 const openSupport = () => {
     // Открытие поддержки
-    window.open('https://t.me/gptpult_help', '_blank');
+    window.open('https://t.me/examka_help', '_blank');
 };
 
 const openAdmin = () => {
