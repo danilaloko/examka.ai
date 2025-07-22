@@ -267,31 +267,22 @@ class DocumentController extends Controller
                 ], 422);
             }
 
-            // ВРЕМЕННО ОТКЛЮЧЕНО: Проверяем reCAPTCHA, если включена
-            if (false && $this->recaptchaService->isEnabled() && isset($validated['recaptcha_token'])) {
+            // Проверяем reCAPTCHA, если включена
+            if ($this->recaptchaService->isEnabled() && isset($validated['recaptcha_token'])) {
                 $recaptchaResult = $this->recaptchaService->verifyV3(
                     $validated['recaptcha_token'],
                     'document_create',
-                    0.1, // Минимальный скор (понижен для избежания ложных срабатываний)
+                    0.5, // Минимальный скор
                     $request->ip()
                 );
 
-                Log::info('reCAPTCHA verification result', $recaptchaResult);
-
                 if (!$recaptchaResult['success']) {
-                    Log::warning('reCAPTCHA verification failed', [
-                        'result' => $recaptchaResult,
-                        'ip' => $request->ip(),
-                        'user_agent' => $request->userAgent()
-                    ]);
-                    
                     return response()->json([
                         'message' => 'Проверка безопасности не пройдена. Попробуйте ещё раз.',
                         'recaptcha_error' => $recaptchaResult['message'] ?? 'reCAPTCHA verification failed'
                     ], 422);
                 }
             } elseif ($this->recaptchaService->isEnabled()) {
-                Log::info('reCAPTCHA token missing');
                 return response()->json([
                     'message' => 'Требуется подтверждение безопасности',
                     'recaptcha_required' => true
