@@ -61,15 +61,13 @@ onMounted(async () => {
     await getUserIP();
     getSessionId();
     
-    // Проверим состояние localStorage перед сохранением
+    // СНАЧАЛА сохраняем intended URL ПЕРЕД любыми другими операциями
     console.log('Login.vue: Current localStorage intended_url:', localStorage.getItem('intended_url'));
     
     // Сохраняем intended URL если он передан через пропы
     if (props.intendedUrl) {
         console.log('Login.vue: Saving intended URL from props:', props.intendedUrl);
         saveIntendedUrl(props.intendedUrl);
-        
-        // Проверим сразу после сохранения
         console.log('Login.vue: localStorage after saving from props:', localStorage.getItem('intended_url'));
     }
     
@@ -79,36 +77,21 @@ onMounted(async () => {
     if (intendedFromParams) {
         console.log('Login.vue: Saving intended URL from URL params:', intendedFromParams);
         saveIntendedUrl(intendedFromParams);
-        
-        // Проверим сразу после сохранения
         console.log('Login.vue: localStorage after saving from params:', localStorage.getItem('intended_url'));
     }
     
-    // Финальная проверка перед checkAuth
-    console.log('Login.vue: Final localStorage check before checkAuth:', localStorage.getItem('intended_url'));
+    // Финальная проверка intended URL
+    const finalIntendedUrl = localStorage.getItem('intended_url');
+    console.log('Login.vue: Final intended URL before checkAuth:', finalIntendedUrl);
     
+    // ТЕПЕРЬ вызываем checkAuth, когда intended URL уже сохранен
     try {
         console.log('Login.vue: Starting checkAuth...');
         const authResult = await checkAuth();
         console.log('Login.vue: checkAuth completed, result:', authResult);
         
-        // Если пользователь авторизован, перенаправляем на intended URL
-        if (authResult) {
-            console.log('Login.vue: User is authenticated, redirecting to intended URL...');
-            
-            // Небольшая задержка чтобы дать время на сохранение intended URL
-            setTimeout(() => {
-                const intendedUrl = localStorage.getItem('intended_url');
-                if (intendedUrl) {
-                    console.log('Login.vue: Redirecting to intended URL:', intendedUrl);
-                    localStorage.removeItem('intended_url'); // Очищаем перед редиректом
-                    window.location.href = intendedUrl;
-                } else {
-                    console.log('Login.vue: No intended URL found, redirecting to /lk');
-                    window.location.href = '/lk';
-                }
-            }, 100);
-        }
+        // Если пользователь авторизован, checkAuth уже перенаправил на intended URL
+        // Больше ничего делать не нужно
     } catch (error) {
         console.error('Auth check failed:', error);
         loadingText.value = 'Ошибка проверки сессии';
