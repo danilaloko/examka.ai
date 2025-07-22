@@ -399,6 +399,11 @@ const onSubmit = async () => {
             console.error('Ответ сервера:', err.response.data);
             console.error('Статус:', err.response.status);
             console.error('Заголовки:', err.response.headers);
+            
+            // Если есть ошибки валидации, выводим их
+            if (err.response.data && err.response.data.errors) {
+                console.error('Ошибки валидации:', err.response.data.errors);
+            }
         }
         
         // Проверяем специфические ошибки reCAPTCHA

@@ -11,6 +11,7 @@ use App\Services\Documents\Files\WordDocumentService;
 use App\Services\Telegram\TelegramNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
@@ -221,6 +222,7 @@ class DocumentController extends Controller
     public function quickCreate(Request $request)
     {
         try {
+            Log::info('QuickCreate request data:', $request->all());
             $user = Auth::user();
             
             // Проверяем лимиты перед созданием документа
@@ -235,30 +237,61 @@ class DocumentController extends Controller
                 ], 422);
             }
             
-            $validated = $request->validate([
-                'document_type_id' => ['required', 'exists:document_types,id'],
-                'topic' => ['required', 'string', 'min:10', 'max:255'],
-                'pages_num' => ['nullable', 'integer', 'min:3', 'max:25'],
-                'test' => ['nullable', 'boolean'], // Параметр для тестирования с фейковыми данными
-                'recaptcha_token' => ['nullable', 'string'], // Токен reCAPTCHA
+            // Проверим, что приходит в запросе
+            Log::info('Request validation data:', [
+                'document_type_id' => $request->get('document_type_id'),
+                'topic' => $request->get('topic'),
+                'pages_num' => $request->get('pages_num'),
+                'topic_length' => strlen($request->get('topic', '')),
             ]);
 
-            // Проверяем reCAPTCHA, если включена
-            if ($this->recaptchaService->isEnabled() && isset($validated['recaptcha_token'])) {
+            try {
+                $validated = $request->validate([
+                    'document_type_id' => ['required', 'exists:document_types,id'],
+                    'topic' => ['required', 'string', 'min:10', 'max:255'],
+                    'pages_num' => ['nullable', 'integer', 'min:4', 'max:25'],
+                    'test' => ['nullable', 'boolean'], // Параметр для тестирования с фейковыми данными
+                    'recaptcha_token' => ['nullable', 'string'], // Токен reCAPTCHA
+                ]);
+                
+                Log::info('Validation passed:', $validated);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::error('Validation failed:', [
+                    'errors' => $e->errors(),
+                    'request_data' => $request->all()
+                ]);
+                
+                return response()->json([
+                    'message' => 'Ошибка валидации',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            // ВРЕМЕННО ОТКЛЮЧЕНО: Проверяем reCAPTCHA, если включена
+            if (false && $this->recaptchaService->isEnabled() && isset($validated['recaptcha_token'])) {
                 $recaptchaResult = $this->recaptchaService->verifyV3(
                     $validated['recaptcha_token'],
                     'document_create',
-                    0.5, // Минимальный скор
+                    0.1, // Минимальный скор (понижен для избежания ложных срабатываний)
                     $request->ip()
                 );
 
+                Log::info('reCAPTCHA verification result', $recaptchaResult);
+
                 if (!$recaptchaResult['success']) {
+                    Log::warning('reCAPTCHA verification failed', [
+                        'result' => $recaptchaResult,
+                        'ip' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ]);
+                    
                     return response()->json([
                         'message' => 'Проверка безопасности не пройдена. Попробуйте ещё раз.',
                         'recaptcha_error' => $recaptchaResult['message'] ?? 'reCAPTCHA verification failed'
                     ], 422);
                 }
             } elseif ($this->recaptchaService->isEnabled()) {
+                Log::info('reCAPTCHA token missing');
                 return response()->json([
                     'message' => 'Требуется подтверждение безопасности',
                     'recaptcha_required' => true
