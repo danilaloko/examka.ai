@@ -53,7 +53,7 @@
                                 <h3 class="section-title">Тип работы</h3>
                                 <div class="work-type-buttons">
                                     <button 
-                                        v-for="type in document_types" 
+                                        v-for="type in displayedTypes" 
                                         :key="type.id"
                                         type="button"
                                         @click="selectWorkType(type)"
@@ -63,6 +63,14 @@
                                         ]"
                                     >
                                         <span class="work-type-name">{{ type.name }}</span>
+                                    </button>
+                                    <button 
+                                        v-if="hiddenTypes.length > 0"
+                                        type="button"
+                                        @click="toggleOtherTypesModal"
+                                        class="work-type-btn other-type-btn"
+                                    >
+                                        <span class="work-type-name">Другое</span>
                                     </button>
                                 </div>
                                 <div v-if="hasError('document_type_id')" class="error-message">
@@ -215,6 +223,28 @@
             </div>
         </div>
     </page-layout>
+
+         <!-- Модальное окно для выбора "Другого" типа работы -->
+     <q-dialog v-model="showOtherTypesModal">
+         <q-card class="other-types-modal">
+             <q-card-section class="other-types-modal-header">
+                 <h3>Выберите тип работы</h3>
+                 <q-btn icon="close" flat round dense @click="toggleOtherTypesModal" />
+             </q-card-section>
+             <q-card-section class="other-types-modal-body">
+                 <div class="other-types-list">
+                     <button 
+                         v-for="type in hiddenTypes" 
+                         :key="type.id" 
+                         class="other-type-item"
+                         @click="selectOtherType(type)"
+                     >
+                         <span class="other-type-name">{{ type.name }}</span>
+                     </button>
+                 </div>
+             </q-card-section>
+         </q-card>
+     </q-dialog>
 </template>
 
 <script setup>
@@ -256,6 +286,13 @@ const showMobileHint = ref(false);
 const mobileHintClosing = ref(false);
 const isMobile = ref(false);
 
+// Состояние для модального окна "Другое"
+const showOtherTypesModal = ref(false);
+
+// Состояние для отображения типов работ
+const displayedTypes = ref([]);
+const hiddenTypes = ref([]);
+
 const { hasError, getError } = useLaravelErrors();
 
 // reCAPTCHA
@@ -271,9 +308,64 @@ const currentStep = computed(() => {
     return 1;
 });
 
+// Инициализация типов работ
+const initializeWorkTypes = () => {
+    if (isMobile.value || props.document_types.length <= 5) {
+        displayedTypes.value = [...props.document_types];
+        hiddenTypes.value = [];
+    } else {
+        displayedTypes.value = props.document_types.slice(0, 5);
+        hiddenTypes.value = props.document_types.slice(5);
+    }
+};
+
+// Показать/скрыть модальное окно "Другое"
+const toggleOtherTypesModal = () => {
+    showOtherTypesModal.value = !showOtherTypesModal.value;
+};
+
+// Выбор типа из модального окна
+const selectOtherType = (selectedType) => {
+    // Находим текущий выбранный тип в основном списке (если есть)
+    const currentSelectedIndex = displayedTypes.value.findIndex(type => type.id === form.value.document_type_id);
+    
+    // Если есть выбранный тип в основном списке, перемещаем его в скрытые
+    if (currentSelectedIndex !== -1) {
+        const currentSelectedType = displayedTypes.value[currentSelectedIndex];
+        hiddenTypes.value.unshift(currentSelectedType);
+    }
+    
+    // Удаляем выбранный тип из скрытых
+    hiddenTypes.value = hiddenTypes.value.filter(type => type.id !== selectedType.id);
+    
+    // Если в основном списке был выбранный тип, заменяем его
+    if (currentSelectedIndex !== -1) {
+        displayedTypes.value[currentSelectedIndex] = selectedType;
+    } else {
+        // Если не было выбранного типа, заменяем последний элемент
+        const lastType = displayedTypes.value.pop();
+        if (lastType) {
+            hiddenTypes.value.unshift(lastType);
+        }
+        displayedTypes.value.push(selectedType);
+    }
+    
+    // Устанавливаем выбранный тип
+    form.value.document_type_id = selectedType.id;
+    
+    // Закрываем модальное окно
+    showOtherTypesModal.value = false;
+};
+
 // Методы
 const checkMobile = () => {
+    const wasMobile = isMobile.value;
     isMobile.value = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Если изменился режим (мобильный/десктопный), переинициализируем типы работ
+    if (wasMobile !== isMobile.value) {
+        initializeWorkTypes();
+    }
 };
 
 const selectWorkType = (type) => {
@@ -408,6 +500,7 @@ const getMobileHintText = () => {
 
 onMounted(async () => {
     checkMobile();
+    initializeWorkTypes();
     window.addEventListener('resize', checkMobile);
     
     // Инициализируем reCAPTCHA, если включена
@@ -662,7 +755,7 @@ onUnmounted(() => {
 /* Кнопки выбора типа работы */
 .work-type-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
 }
 
@@ -697,6 +790,13 @@ onUnmounted(() => {
     font-weight: 600;
     text-align: center;
     line-height: 1.2;
+}
+
+.other-type-btn {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
 }
 
 /* Поле ввода темы */
@@ -994,6 +1094,11 @@ onUnmounted(() => {
     .work-type-name {
         font-size: 16px;
     }
+    
+    /* На мобильных показываем все типы работ */
+    .other-type-btn {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1209,6 +1314,96 @@ onUnmounted(() => {
     
     .segment-name {
         font-size: 9px;
+    }
+}
+
+/* Модальное окно для выбора "Другого" типа работы */
+.other-types-modal {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.other-types-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.other-types-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.other-types-modal-body {
+    padding: 24px;
+}
+
+.other-types-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.other-type-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.other-type-item:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.other-type-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.4;
+}
+
+/* Адаптивность модального окна */
+@media (max-width: 768px) {
+    .other-types-modal {
+        max-width: calc(100vw - 32px);
+        margin: 16px;
+    }
+    
+    .other-types-modal-header {
+        padding: 16px 20px;
+    }
+    
+    .other-types-modal-header h3 {
+        font-size: 18px;
+    }
+    
+    .other-types-modal-body {
+        padding: 20px;
+    }
+    
+    .other-type-item {
+        padding: 14px 16px;
+    }
+    
+    .other-type-name {
+        font-size: 15px;
     }
 }
 </style>
