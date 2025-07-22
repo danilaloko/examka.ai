@@ -325,47 +325,47 @@ const initializeWorkTypes = () => {
     }
 };
 
-// Маппинг английских параметров к типам документов
+// Маппинг параметров (русские слова латиницей) к типам документов
 const getTypeMapping = () => {
     return {
         // Основные типы работ
-        'practice-report': 'Отчет о практике',
-        'coursework': 'Курсовая работа', 
-        'report': 'Доклад',
-        'essay': 'Эссе',
-        'abstract': 'Реферат',
-        'article': 'Научная статья',
-        'diploma': 'Диплом',
-        'control-work': 'Контрольные работы',
-        'graduation-work': 'ВКР',
-        'dissertation': 'Диссертация',
-        'composition': 'Сочинение',
+        'otchet': 'Отчет о практике',
+        'kursovaya': 'Курсовая работа', 
+        'doklad': 'Доклад',
+        'esse': 'Эссе',
+        'referat': 'Реферат',
+        'statya': 'Научная статья',
+        'diplom': 'Диплом',
+        'kontrolnaya': 'Контрольные работы',
+        'vkr': 'ВКР',
+        'dissertaciya': 'Диссертация',
+        'sochinenie': 'Сочинение',
         'vak': 'ВАК',
-        'synopsis': 'Автореферат',
+        'avtoreferat': 'Автореферат',
         'mba': 'Диплом MBA',
-        'phd': 'Кандидатская диссертация',
-        'masters': 'Магистреская диссертация',
-        'review': 'Рецензия',
-        'research': 'Исследовательские работы',
-        'conclusion': 'Выводы',
-        'introduction': 'Введение',
-        'homework': 'Домашняя работа',
-        'research-work': 'Научно исследовательская работа',
+        'kandidatskaya': 'Кандидатская диссертация',
+        'magisterskaya': 'Магистреская диссертация',
+        'recenziya': 'Рецензия',
+        'issledovanie': 'Исследовательские работы',
+        'vyvody': 'Выводы',
+        'vvedenie': 'Введение',
+        'domashnyaya': 'Домашняя работа',
+        'nir': 'Научно исследовательская работа',
         
         // Альтернативные названия
-        'course': 'Курсовая работа',
-        'course-work': 'Курсовая работа',
+        'kurs': 'Курсовая работа',
+        'kursach': 'Курсовая работа',
         'thesis': 'Диплом',
-        'paper': 'Научная статья',
-        'scientific-article': 'Научная статья',
-        'graduate': 'ВКР',
-        'bachelor': 'ВКР',
-        'master': 'Магистреская диссертация',
-        'masters-thesis': 'Магистреская диссертация',
-        'candidate': 'Кандидатская диссертация',
-        'phd-thesis': 'Кандидатская диссертация',
-        'scientific-work': 'Научно исследовательская работа',
-        'home-assignment': 'Домашняя работа'
+        'nauchka': 'Научная статья',
+        'nauchnaya': 'Научная статья',
+        'vypusknaya': 'ВКР',
+        'bakalavrskaya': 'ВКР',
+        'magistr': 'Магистреская диссертация',
+        'magister': 'Магистреская диссертация',
+        'kandidat': 'Кандидатская диссертация',
+        'phd': 'Кандидатская диссертация',
+        'nauchnaya-rabota': 'Научно исследовательская работа',
+        'domashka': 'Домашняя работа'
     };
 };
 
@@ -376,46 +376,46 @@ const getAllAvailableTypes = () => {
 
 // Установка выбранного типа работы на основе URL параметра или автовыбор первого
 // 
-// ПОЛНЫЙ СПИСОК ДОСТУПНЫХ ПАРАМЕТРОВ:
+// ПОЛНЫЙ СПИСОК ДОСТУПНЫХ ПАРАМЕТРОВ (русские слова латиницей):
 // 
 // Основные типы работ:
-// /new?type=practice-report      - Отчет о практике
-// /new?type=coursework          - Курсовая работа
-// /new?type=report              - Доклад
-// /new?type=essay               - Эссе
-// /new?type=abstract            - Реферат
-// /new?type=article             - Научная статья
-// /new?type=diploma             - Диплом
-// /new?type=control-work        - Контрольные работы
-// /new?type=graduation-work     - ВКР
-// /new?type=dissertation        - Диссертация
-// /new?type=composition         - Сочинение
+// /new?type=otchet              - Отчет о практике
+// /new?type=kursovaya           - Курсовая работа
+// /new?type=doklad              - Доклад
+// /new?type=esse                - Эссе
+// /new?type=referat             - Реферат
+// /new?type=statya              - Научная статья
+// /new?type=diplom              - Диплом
+// /new?type=kontrolnaya         - Контрольные работы
+// /new?type=vkr                 - ВКР
+// /new?type=dissertaciya        - Диссертация
+// /new?type=sochinenie          - Сочинение
 // /new?type=vak                 - ВАК
-// /new?type=synopsis            - Автореферат
+// /new?type=avtoreferat         - Автореферат
 // /new?type=mba                 - Диплом MBA
-// /new?type=phd                 - Кандидатская диссертация
-// /new?type=masters             - Магистреская диссертация
-// /new?type=review              - Рецензия
-// /new?type=research            - Исследовательские работы
-// /new?type=conclusion          - Выводы
-// /new?type=introduction        - Введение
-// /new?type=homework            - Домашняя работа
-// /new?type=research-work       - Научно исследовательская работа
+// /new?type=kandidatskaya       - Кандидатская диссертация
+// /new?type=magisterskaya       - Магистреская диссертация
+// /new?type=recenziya           - Рецензия
+// /new?type=issledovanie        - Исследовательские работы
+// /new?type=vyvody              - Выводы
+// /new?type=vvedenie            - Введение
+// /new?type=domashnyaya         - Домашняя работа
+// /new?type=nir                 - Научно исследовательская работа
 //
 // Альтернативные названия:
-// /new?type=course              - Курсовая работа
-// /new?type=course-work         - Курсовая работа
+// /new?type=kurs                - Курсовая работа
+// /new?type=kursach             - Курсовая работа
 // /new?type=thesis              - Диплом
-// /new?type=paper               - Научная статья
-// /new?type=scientific-article  - Научная статья
-// /new?type=graduate            - ВКР
-// /new?type=bachelor            - ВКР
-// /new?type=master              - Магистреская диссертация
-// /new?type=masters-thesis      - Магистреская диссертация
-// /new?type=candidate           - Кандидатская диссертация
-// /new?type=phd-thesis          - Кандидатская диссертация
-// /new?type=scientific-work     - Научно исследовательская работа
-// /new?type=home-assignment     - Домашняя работа
+// /new?type=nauchka             - Научная статья
+// /new?type=nauchnaya           - Научная статья
+// /new?type=vypusknaya          - ВКР
+// /new?type=bakalavrskaya       - ВКР
+// /new?type=magistr             - Магистреская диссертация
+// /new?type=magister            - Магистреская диссертация
+// /new?type=kandidat            - Кандидатская диссертация
+// /new?type=phd                 - Кандидатская диссертация
+// /new?type=nauchnaya-rabota    - Научно исследовательская работа
+// /new?type=domashka            - Домашняя работа
 //
 // Если параметр не указан, автоматически выбирается первый тип (Отчет о практике)
 const setSelectedType = () => {
@@ -673,7 +673,7 @@ onMounted(async () => {
     // Добавляем функцию в глобальную область для тестирования (только в dev режиме)
     if (import.meta.env.DEV) {
         window.getAllDocumentTypes = () => {
-            console.log('Доступные параметры для /new?type=PARAMETER:');
+            console.log('Доступные параметры для /new?type=PARAMETER (русские слова латиницей):');
             console.table(getTypeMapping());
             console.log('Список всех параметров:', getAllAvailableTypes());
             return getAllAvailableTypes();
