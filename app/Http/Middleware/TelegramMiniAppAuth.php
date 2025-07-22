@@ -164,31 +164,45 @@ class TelegramMiniAppAuth
      */
     private function handleLoginPageRedirect(Request $request, Closure $next): Response
     {
-        // Получаем intended URL из локального хранилища через заголовок или параметр
-        $intendedUrl = $request->header('X-Intended-Url') 
-                      ?? $request->query('intended_url') 
-                      ?? '/lk';
+        // Получаем intended URL из параметра запроса
+        $intendedUrl = $request->query('intended_url');
         
-        // Список разрешенных маршрутов для безопасности
-        $allowedRoutes = ['/lk', '/new', '/documents', '/profile'];
+        Log::info('TelegramMiniAppAuth: Processing login page redirect', [
+            'intended_url_from_query' => $intendedUrl,
+            'full_url' => $request->fullUrl(),
+            'query_string' => $request->getQueryString()
+        ]);
         
-        // Проверяем, что URL начинается с / и входит в разрешенные
-        if (!str_starts_with($intendedUrl, '/') || !$this->isAllowedRoute($intendedUrl, $allowedRoutes)) {
-            $intendedUrl = '/lk'; // По умолчанию в ЛК
+        // Если intended URL передан в query параметрах, используем его
+        if ($intendedUrl) {
+            // Список разрешенных маршрутов для безопасности
+            $allowedRoutes = ['/lk', '/new', '/documents', '/profile'];
+            
+            // Валидируем intended URL
+            if ($this->isValidIntendedUrl($intendedUrl, $allowedRoutes)) {
+                Log::info('TelegramMiniAppAuth: Redirecting to intended URL', [
+                    'intended_url' => $intendedUrl
+                ]);
+                
+                if ($request->ajax() || $request->header('X-Inertia')) {
+                    $response = $next($request);
+                    $response->headers->set('X-Telegram-Redirect', $intendedUrl);
+                    return $response;
+                } else {
+                    return redirect($intendedUrl);
+                }
+            }
         }
         
+        // Если intended URL нет или невалиден, перенаправляем на ЛК
+        Log::info('TelegramMiniAppAuth: No valid intended URL, redirecting to /lk');
+        
         if ($request->ajax() || $request->header('X-Inertia')) {
-            Log::info('TelegramMiniAppAuth: Отправляем заголовок перенаправления для AJAX', [
-                'intended_url' => $intendedUrl
-            ]);
             $response = $next($request);
-            $response->headers->set('X-Telegram-Redirect', $intendedUrl);
+            $response->headers->set('X-Telegram-Redirect', '/lk');
             return $response;
         } else {
-            Log::info('TelegramMiniAppAuth: Перенаправляем пользователя на intended URL', [
-                'intended_url' => $intendedUrl
-            ]);
-            return redirect($intendedUrl);
+            return redirect('/lk');
         }
     }
 
@@ -473,5 +487,24 @@ class TelegramMiniAppAuth
             });
         
         return $telegramCookies->isNotEmpty();
+    }
+
+    /**
+     * Валидация intended URL
+     */
+    private function isValidIntendedUrl(string $url, array $allowedRoutes): bool
+    {
+        // Парсим URL чтобы получить только path
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+        
+        // Проверяем, что path начинается с одного из разрешенных маршрутов
+        foreach ($allowedRoutes as $allowedRoute) {
+            if (str_starts_with($path, $allowedRoute)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
