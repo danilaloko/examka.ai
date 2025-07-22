@@ -310,12 +310,22 @@ const currentStep = computed(() => {
 
 // Инициализация типов работ
 const initializeWorkTypes = () => {
-    if (isMobile.value || props.document_types.length <= 5) {
-        displayedTypes.value = [...props.document_types];
-        hiddenTypes.value = [];
+    if (isMobile.value) {
+        if (props.document_types.length <= 3) {
+            displayedTypes.value = [...props.document_types];
+            hiddenTypes.value = [];
+        } else {
+            displayedTypes.value = props.document_types.slice(0, 3);
+            hiddenTypes.value = props.document_types.slice(3);
+        }
     } else {
-        displayedTypes.value = props.document_types.slice(0, 5);
-        hiddenTypes.value = props.document_types.slice(5);
+        if (props.document_types.length <= 5) {
+            displayedTypes.value = [...props.document_types];
+            hiddenTypes.value = [];
+        } else {
+            displayedTypes.value = props.document_types.slice(0, 5);
+            hiddenTypes.value = props.document_types.slice(5);
+        }
     }
 };
 
@@ -332,7 +342,7 @@ const selectOtherType = (selectedType) => {
     // Если есть выбранный тип в основном списке, перемещаем его в скрытые
     if (currentSelectedIndex !== -1) {
         const currentSelectedType = displayedTypes.value[currentSelectedIndex];
-        hiddenTypes.value.unshift(currentSelectedType);
+        hiddenTypes.value.push(currentSelectedType);
     }
     
     // Удаляем выбранный тип из скрытых
@@ -345,7 +355,7 @@ const selectOtherType = (selectedType) => {
         // Если не было выбранного типа, заменяем последний элемент
         const lastType = displayedTypes.value.pop();
         if (lastType) {
-            hiddenTypes.value.unshift(lastType);
+            hiddenTypes.value.push(lastType);
         }
         displayedTypes.value.push(selectedType);
     }
@@ -793,10 +803,16 @@ onUnmounted(() => {
 }
 
 .other-type-btn {
+    border-color: #6b7280;
+    background: #f8fafc;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.other-type-btn:hover {
     border-color: #3b82f6;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+    background: #f1f5f9;
+    color: #3b82f6;
 }
 
 /* Поле ввода темы */
@@ -1095,10 +1111,7 @@ onUnmounted(() => {
         font-size: 16px;
     }
     
-    /* На мобильных показываем все типы работ */
-    .other-type-btn {
-        display: none;
-    }
+    /* На мобильных показываем кнопку "Другое" если есть скрытые типы */
 }
 
 @media (max-width: 768px) {
@@ -1346,9 +1359,9 @@ onUnmounted(() => {
 }
 
 .other-types-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
 }
 
 .other-type-item {
@@ -1396,6 +1409,10 @@ onUnmounted(() => {
     
     .other-types-modal-body {
         padding: 20px;
+    }
+    
+    .other-types-list {
+        grid-template-columns: 1fr;
     }
     
     .other-type-item {
