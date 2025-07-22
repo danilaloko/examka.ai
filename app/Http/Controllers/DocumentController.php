@@ -252,16 +252,7 @@ class DocumentController extends Controller
                     $request->ip()
                 );
 
-                \Illuminate\Support\Facades\Log::info('reCAPTCHA verification completed', [
-                    'result' => $recaptchaResult
-                ]);
-
                 if (!$recaptchaResult['success']) {
-                    \Illuminate\Support\Facades\Log::warning('reCAPTCHA verification failed', [
-                        'result' => $recaptchaResult,
-                        'user_id' => Auth::id()
-                    ]);
-                    
                     return response()->json([
                         'message' => 'Проверка безопасности не пройдена. Попробуйте ещё раз.',
                         'recaptcha_error' => $recaptchaResult['message'] ?? 'reCAPTCHA verification failed'
@@ -273,12 +264,6 @@ class DocumentController extends Controller
                     'recaptcha_required' => true
                 ], 422);
             }
-
-            \Illuminate\Support\Facades\Log::info('Starting document creation', [
-                'user_id' => Auth::id(),
-                'validated_data' => $validated,
-                'is_test' => $request->boolean('test')
-            ]);
 
             // Если передан параметр test, создаем с фейковыми данными из фабрики
             if ($request->boolean('test')) {
@@ -312,36 +297,15 @@ class DocumentController extends Controller
                 $document->save();
             }
 
-            \Illuminate\Support\Facades\Log::info('Document created successfully', [
-                'document_id' => $document->id,
-                'user_id' => Auth::id(),
-                'status' => $document->status
-            ]);
-
             // Запускаем генерацию через сервис
             $result = $this->documentJobService->safeStartBaseGeneration($document);
 
-            \Illuminate\Support\Facades\Log::info('Document generation job result', [
-                'document_id' => $document->id,
-                'result' => $result
-            ]);
-
             if (!$result['success']) {
-                \Illuminate\Support\Facades\Log::error('Document generation job failed', [
-                    'document_id' => $document->id,
-                    'result' => $result
-                ]);
-                
                 return response()->json([
                     'message' => $result['message'],
                     'document' => $document
                 ], 422);
             }
-
-            \Illuminate\Support\Facades\Log::info('Document creation completed successfully', [
-                'document_id' => $document->id,
-                'redirect_url' => route('documents.show', ['document' => $document->id, 'autoload' => 1])
-            ]);
 
             return response()->json([
                 'message' => 'Документ успешно создан',
