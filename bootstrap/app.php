@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Регистрируем алиасы middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminRole::class,
+            'auth' => \App\Http\Middleware\Authenticate::class,
         ]);
 
         //
