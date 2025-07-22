@@ -15,10 +15,18 @@ let isRedirectingAuth = false
 export const saveIntendedUrl = (url = null) => {
     const intendedUrl = url || window.location.pathname + window.location.search;
     
+    console.log('saveIntendedUrl: Attempting to save URL:', intendedUrl);
+    
     // Не сохраняем URL логина и некоторые служебные страницы
     if (intendedUrl !== '/login' && !intendedUrl.startsWith('/auto-login/')) {
         localStorage.setItem('intended_url', intendedUrl);
-        console.log('Saved intended URL:', intendedUrl);
+        console.log('saveIntendedUrl: Successfully saved intended URL:', intendedUrl);
+        
+        // Проверяем что действительно сохранилось
+        const saved = localStorage.getItem('intended_url');
+        console.log('saveIntendedUrl: Verification - localStorage now contains:', saved);
+    } else {
+        console.log('saveIntendedUrl: URL not saved (login or auto-login page):', intendedUrl);
     }
 }
 
@@ -30,21 +38,27 @@ const getAndClearIntendedUrl = () => {
         console.log('Retrieved intended URL:', intendedUrl);
         return intendedUrl;
     }
+    console.log('No intended URL found in localStorage');
     return '/lk'; // По умолчанию ЛК
 }
 
 // Функция для получения URL для редиректа после авторизации
 const getRedirectUrl = () => {
+    console.log('getRedirectUrl: Getting redirect URL...');
     const intendedUrl = getAndClearIntendedUrl();
+    
+    console.log('getRedirectUrl: Intended URL from localStorage:', intendedUrl);
     
     // Список разрешенных маршрутов для безопасности
     const allowedRoutes = ['/lk', '/new', '/documents', '/profile'];
     
     // Проверяем, что URL начинается с / и входит в разрешенные
     if (intendedUrl.startsWith('/') && allowedRoutes.some(route => intendedUrl.startsWith(route))) {
+        console.log('getRedirectUrl: Using intended URL:', intendedUrl);
         return intendedUrl;
     }
     
+    console.log('getRedirectUrl: Intended URL not allowed, using default /lk');
     return '/lk'; // По умолчанию ЛК
 }
 

@@ -121,7 +121,8 @@ export function useTelegramMiniApp() {
           if (isValid) {
             console.log('useTelegramMiniApp: Сохраненная сессия валидна')
             if (window.location.pathname === '/login') {
-              redirectToIntended()
+              // Позволяем auth.js обработать перенаправление
+              console.log('useTelegramMiniApp: На странице логина, позволяем auth.js обработать перенаправление')
             }
             return
           }
@@ -144,7 +145,8 @@ export function useTelegramMiniApp() {
         
         // Перенаправляем если на странице логина
         if (window.location.pathname === '/login') {
-          redirectToIntended()
+          // Позволяем auth.js обработать перенаправление
+          console.log('useTelegramMiniApp: На странице логина после успешной аутентификации, позволяем auth.js обработать перенаправление')
         }
       } else {
         console.warn('useTelegramMiniApp: Аутентификация неуспешна:', authResult.error)
@@ -217,38 +219,6 @@ export function useTelegramMiniApp() {
         error: error.message
       }
     }
-  }
-
-  // Функция для получения intended URL
-  const getIntendedUrl = () => {
-    const intendedUrl = localStorage.getItem('intended_url')
-    if (intendedUrl) {
-      localStorage.removeItem('intended_url')
-      
-      // Список разрешенных маршрутов для безопасности
-      const allowedRoutes = ['/lk', '/new', '/documents', '/profile']
-      
-      // Проверяем, что URL начинается с / и входит в разрешенные
-      if (intendedUrl.startsWith('/') && allowedRoutes.some(route => intendedUrl.startsWith(route))) {
-        return intendedUrl
-      }
-    }
-    
-    return '/lk' // По умолчанию ЛК
-  }
-
-  // Редирект в ЛК или на intended URL
-  const redirectToIntended = () => {
-    if (isRedirecting) return
-    
-    const intendedUrl = getIntendedUrl()
-    console.log('useTelegramMiniApp: Перенаправляем на intended URL:', intendedUrl)
-    isRedirecting = true
-    
-    // Небольшая задержка для завершения всех операций
-    setTimeout(() => {
-      window.location.href = intendedUrl
-    }, 100)
   }
 
   const showBackButton = (callback) => {
