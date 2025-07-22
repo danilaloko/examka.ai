@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -98,6 +99,8 @@ class AuthenticatedSessionController extends Controller
      */
     private function validateIntendedUrl(string $url): ?string
     {
+        Log::info('validateIntendedUrl: Validating URL', ['url' => $url]);
+        
         // Список разрешенных маршрутов для безопасности
         $allowedRoutes = ['/lk', '/new', '/documents', '/profile', '/dashboard'];
         
@@ -106,14 +109,30 @@ class AuthenticatedSessionController extends Controller
         $path = $parsedUrl['path'] ?? '';
         $query = $parsedUrl['query'] ?? '';
         
+        Log::info('validateIntendedUrl: Parsed URL', [
+            'path' => $path,
+            'query' => $query,
+            'parsed' => $parsedUrl
+        ]);
+        
         // Проверяем, что path начинается с одного из разрешенных маршрутов
         foreach ($allowedRoutes as $allowedRoute) {
             if (str_starts_with($path, $allowedRoute)) {
+                $finalUrl = $path . ($query ? '?' . $query : '');
+                Log::info('validateIntendedUrl: URL validated successfully', [
+                    'matched_route' => $allowedRoute,
+                    'final_url' => $finalUrl
+                ]);
                 // Возвращаем только path + query без домена
-                return $path . ($query ? '?' . $query : '');
+                return $finalUrl;
             }
         }
         
+        Log::warning('validateIntendedUrl: URL validation failed', [
+            'url' => $url,
+            'path' => $path,
+            'allowed_routes' => $allowedRoutes
+        ]);
         return null; // URL не прошел валидацию
     }
 }

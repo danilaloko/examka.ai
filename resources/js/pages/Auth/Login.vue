@@ -55,14 +55,22 @@ const contactSupport = () => {
 };
 
 onMounted(async () => {
+    console.log('Login.vue: Starting onMounted...');
+    
     // Получаем IP и session ID
     await getUserIP();
     getSessionId();
+    
+    // Проверим состояние localStorage перед сохранением
+    console.log('Login.vue: Current localStorage intended_url:', localStorage.getItem('intended_url'));
     
     // Сохраняем intended URL если он передан через пропы
     if (props.intendedUrl) {
         console.log('Login.vue: Saving intended URL from props:', props.intendedUrl);
         saveIntendedUrl(props.intendedUrl);
+        
+        // Проверим сразу после сохранения
+        console.log('Login.vue: localStorage after saving from props:', localStorage.getItem('intended_url'));
     }
     
     // Проверяем URL параметры для intended URL
@@ -71,10 +79,18 @@ onMounted(async () => {
     if (intendedFromParams) {
         console.log('Login.vue: Saving intended URL from URL params:', intendedFromParams);
         saveIntendedUrl(intendedFromParams);
+        
+        // Проверим сразу после сохранения
+        console.log('Login.vue: localStorage after saving from params:', localStorage.getItem('intended_url'));
     }
     
+    // Финальная проверка перед checkAuth
+    console.log('Login.vue: Final localStorage check before checkAuth:', localStorage.getItem('intended_url'));
+    
     try {
+        console.log('Login.vue: Starting checkAuth...');
         await checkAuth();
+        console.log('Login.vue: checkAuth completed');
     } catch (error) {
         console.error('Auth check failed:', error);
         loadingText.value = 'Ошибка проверки сессии';

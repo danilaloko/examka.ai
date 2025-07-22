@@ -485,6 +485,11 @@ export const shouldShowLogoutButton = () => {
 
 // Проверка авторизации при загрузке страницы
 export const checkAuth = async () => {
+    console.log('checkAuth: Starting...');
+    console.log('checkAuth: Current localStorage intended_url:', localStorage.getItem('intended_url'));
+    console.log('checkAuth: Current URL:', window.location.href);
+    console.log('checkAuth: Current pathname:', window.location.pathname);
+    
     // Если уже происходит редирект, не выполняем повторную проверку
     if (isRedirectingAuth) {
         return false
@@ -505,6 +510,10 @@ export const checkAuth = async () => {
         }
         
         // Проверяем Inertia props
+        console.log('checkAuth: Checking authentication status...');
+        console.log('checkAuth: isAuthenticated.value before checks:', isAuthenticated.value);
+        console.log('checkAuth: user.value:', user.value);
+        
         if (isAuthenticated.value) {
             const inertiaValid = checkInertiaAuth()
             
@@ -547,8 +556,15 @@ export const checkAuth = async () => {
         }
         
         // Сохраняем текущий URL как intended, если пользователь не авторизован
+        console.log('checkAuth: Checking if we should save intended URL...');
+        console.log('checkAuth: window.location.pathname:', window.location.pathname);
+        console.log('checkAuth: isAuthenticated.value:', isAuthenticated.value);
+        
         if (window.location.pathname !== '/login') {
+            console.log('checkAuth: NOT on login page - saving current URL as intended');
             saveIntendedUrl();
+        } else {
+            console.log('checkAuth: ON login page - NOT saving intended URL');
         }
         
         // Только на странице логина пытаемся восстановить или автозарегистрироваться
