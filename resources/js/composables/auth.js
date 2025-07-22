@@ -544,12 +544,12 @@ export const checkAuth = async () => {
                 }
             }
             
-            // Если на странице логина, но уже авторизован - редиректим
+            // Если на странице логина, но уже авторизован - НЕ редиректим сразу
+            // Позволяем Login.vue сохранить intended URL первым
             if (window.location.pathname === '/login' && !isRedirectingAuth) {
-                isRedirectingAuth = true
-                const redirectUrl = getRedirectUrl();
-                window.location.href = redirectUrl;
-                return true
+                console.log('checkAuth: On login page but authenticated - will redirect after Login.vue processes intended URL');
+                // НЕ редиректим сразу, возвращаем true чтобы показать что аутентификация прошла
+                return true;
             }
             
             return true

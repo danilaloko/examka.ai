@@ -89,8 +89,26 @@ onMounted(async () => {
     
     try {
         console.log('Login.vue: Starting checkAuth...');
-        await checkAuth();
-        console.log('Login.vue: checkAuth completed');
+        const authResult = await checkAuth();
+        console.log('Login.vue: checkAuth completed, result:', authResult);
+        
+        // Если пользователь авторизован, перенаправляем на intended URL
+        if (authResult) {
+            console.log('Login.vue: User is authenticated, redirecting to intended URL...');
+            
+            // Небольшая задержка чтобы дать время на сохранение intended URL
+            setTimeout(() => {
+                const intendedUrl = localStorage.getItem('intended_url');
+                if (intendedUrl) {
+                    console.log('Login.vue: Redirecting to intended URL:', intendedUrl);
+                    localStorage.removeItem('intended_url'); // Очищаем перед редиректом
+                    window.location.href = intendedUrl;
+                } else {
+                    console.log('Login.vue: No intended URL found, redirecting to /lk');
+                    window.location.href = '/lk';
+                }
+            }, 100);
+        }
     } catch (error) {
         console.error('Auth check failed:', error);
         loadingText.value = 'Ошибка проверки сессии';
