@@ -2273,6 +2273,31 @@
                                 <span class="work-type-title">Научная статья</span>
                             </div>
                         </div>
+                        <div class="work-type-item" onclick="saveIntendedUrlAndRedirect('/new')">
+                            <div class="work-type-content">
+                                <span class="work-type-title">Диплом</span>
+                            </div>
+                        </div>
+                        <div class="work-type-item" onclick="saveIntendedUrlAndRedirect('/new')">
+                            <div class="work-type-content">
+                                <span class="work-type-title">Контрольные работы</span>
+                            </div>
+                        </div>
+                        <div class="work-type-item" onclick="saveIntendedUrlAndRedirect('/new')">
+                            <div class="work-type-content">
+                                <span class="work-type-title">ВКР</span>
+                            </div>
+                        </div>
+                        <div class="work-type-item" onclick="saveIntendedUrlAndRedirect('/new')">
+                            <div class="work-type-content">
+                                <span class="work-type-title">Диссертация</span>
+                            </div>
+                        </div>
+                        <div class="work-type-item" style="background:#e4e4e4;color:#5271ff;cursor:default;pointer-events:none;">
+                            <div class="work-type-content">
+                                <span class="work-type-title">И другие</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
