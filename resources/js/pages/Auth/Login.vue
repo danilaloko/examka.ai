@@ -1,7 +1,7 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
-import { checkAuth } from '@/composables/auth';
+import { checkAuth, saveIntendedUrl } from '@/composables/auth';
 
 const props = defineProps({
     canResetPassword: {
@@ -9,6 +9,10 @@ const props = defineProps({
     },
     status: {
         type: String,
+    },
+    intendedUrl: {
+        type: String,
+        default: null
     }
 });
 
@@ -55,8 +59,21 @@ onMounted(async () => {
     await getUserIP();
     getSessionId();
     
+    // Сохраняем intended URL если он передан через пропы
+    if (props.intendedUrl) {
+        console.log('Login.vue: Saving intended URL from props:', props.intendedUrl);
+        saveIntendedUrl(props.intendedUrl);
+    }
+    
+    // Проверяем URL параметры для intended URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const intendedFromParams = urlParams.get('intended_url');
+    if (intendedFromParams) {
+        console.log('Login.vue: Saving intended URL from URL params:', intendedFromParams);
+        saveIntendedUrl(intendedFromParams);
+    }
+    
     try {
-        // checkAuth уже содержит всю логику для intended URL и редиректов
         await checkAuth();
     } catch (error) {
         console.error('Auth check failed:', error);

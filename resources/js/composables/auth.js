@@ -12,7 +12,7 @@ let justLoggedOut = false;
 let isRedirectingAuth = false
 
 // Функция для сохранения intended URL
-const saveIntendedUrl = (url = null) => {
+export const saveIntendedUrl = (url = null) => {
     const intendedUrl = url || window.location.pathname + window.location.search;
     
     // Не сохраняем URL логина и некоторые служебные страницы
