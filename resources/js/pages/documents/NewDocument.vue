@@ -803,16 +803,15 @@ onUnmounted(() => {
 }
 
 .other-type-btn {
-    border-color: #6b7280;
-    background: #f8fafc;
-    color: #6b7280;
-    font-weight: 500;
+    border-color: #e2e8f0;
+    background: #ffffff;
+    color: #374151;
 }
 
 .other-type-btn:hover {
     border-color: #3b82f6;
-    background: #f1f5f9;
-    color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
 }
 
 /* Поле ввода темы */
@@ -1333,9 +1332,12 @@ onUnmounted(() => {
 /* Модальное окно для выбора "Другого" типа работы */
 .other-types-modal {
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
+    max-height: 80vh;
     border-radius: 20px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .other-types-modal-header {
@@ -1345,6 +1347,7 @@ onUnmounted(() => {
     padding: 20px 24px;
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
 }
 
 .other-types-modal-header h3 {
@@ -1356,6 +1359,28 @@ onUnmounted(() => {
 
 .other-types-modal-body {
     padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Кастомный скроллбар для модального окна */
+.other-types-modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.other-types-modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.other-types-modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.other-types-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .other-types-list {
@@ -1396,6 +1421,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
     .other-types-modal {
         max-width: calc(100vw - 32px);
+        max-height: 70vh;
         margin: 16px;
     }
     
