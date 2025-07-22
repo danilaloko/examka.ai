@@ -2,7 +2,6 @@
 import { Head, router } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import { checkAuth } from '@/composables/auth';
-import { useRecaptcha } from '@/composables/recaptcha';
 
 const props = defineProps({
     canResetPassword: {
@@ -10,13 +9,6 @@ const props = defineProps({
     },
     status: {
         type: String,
-    },
-    recaptcha: {
-        type: Object,
-        default: () => ({
-            site_key: null,
-            enabled: false
-        })
     }
 });
 
@@ -25,10 +17,6 @@ const isLoading = ref(true);
 const loadingText = ref('Небольшая проверка безопасности');
 const userIP = ref('');
 const sessionId = ref('');
-
-// reCAPTCHA
-const { initRecaptcha, executeAction, isReady: isRecaptchaReady } = useRecaptcha();
-const recaptchaInitialized = ref(false);
 
 // Получение IP адреса
 const getUserIP = async () => {
@@ -67,26 +55,8 @@ onMounted(async () => {
     await getUserIP();
     getSessionId();
     
-    // Инициализируем reCAPTCHA если включена
-    if (props.recaptcha?.enabled && props.recaptcha?.site_key) {
-        try {
-            await initRecaptcha(props.recaptcha.site_key);
-            recaptchaInitialized.value = true;
-        } catch (error) {
-            console.error('Failed to initialize reCAPTCHA:', error);
-        }
-    }
-    
     try {
-        // Выполняем reCAPTCHA проверку при загрузке, если включена
-        if (props.recaptcha?.enabled && recaptchaInitialized.value) {
-            try {
-                await executeAction('login_page');
-            } catch (recaptchaError) {
-                console.error('reCAPTCHA check failed:', recaptchaError);
-            }
-        }
-        
+        // checkAuth уже содержит всю логику для intended URL и редиректов
         await checkAuth();
     } catch (error) {
         console.error('Auth check failed:', error);
