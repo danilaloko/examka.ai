@@ -226,6 +226,7 @@ import { Head } from '@inertiajs/vue3';
 import { apiClient, isLoading, useLaravelErrors } from '@/composables/api';
 import CustomInput from '@/components/shared/CustomInput.vue';
 import { useRecaptcha } from '@/composables/recaptcha';
+import { useQuasar } from 'quasar';
 
 const props = defineProps({
     document_types: {
@@ -254,6 +255,9 @@ const mobileHintClosing = ref(false);
 const isMobile = ref(false);
 
 const { hasError, getError } = useLaravelErrors();
+
+// Quasar
+const $q = useQuasar();
 
 // reCAPTCHA
 const { initRecaptcha, executeAction, isReady: isRecaptchaReady, getError: getRecaptchaError } = useRecaptcha();
@@ -355,7 +359,8 @@ const onSubmit = async () => {
 
         const data = {
             ...form.value,
-            document_type_id: Number(form.value.document_type_id)
+            document_type_id: Number(form.value.document_type_id),
+            pages_num: Number(form.value.pages_num)
         };
 
         // Добавляем reCAPTCHA токен, если включена
@@ -371,6 +376,9 @@ const onSubmit = async () => {
             }
         }
 
+        console.log('Отправляем данные:', data);
+        console.log('URL запроса:', route('documents.quick-create'));
+        
         const response = await apiClient.post(route('documents.quick-create'), data);
         
         if (response && response.document && response.document.id) {
@@ -384,11 +392,20 @@ const onSubmit = async () => {
         }
     } catch (err) {
         isLoading.value = false
-        // console.error('Ошибка при создании документа:', err);  // Закомментировано для продакшена
+        console.error('Ошибка при создании документа:', err);
+        
+        // Выводим детальную информацию об ошибке
+        if (err.response) {
+            console.error('Ответ сервера:', err.response.data);
+            console.error('Статус:', err.response.status);
+            console.error('Заголовки:', err.response.headers);
+        }
         
         // Проверяем специфические ошибки reCAPTCHA
         if (err.response && err.response.data && err.response.data.recaptcha_error) {
             error.value = 'Проверка безопасности не пройдена. Попробуйте ещё раз.';
+        } else if (err.response && err.response.data && err.response.data.message) {
+            error.value = err.response.data.message;
         } else {
             $q.notify({
                 type: 'negative',
