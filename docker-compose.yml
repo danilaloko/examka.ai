@@ -1,0 +1,57 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gptpult-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - gptpult-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: gptpult-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - gptpult-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: gptpult-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gptpult
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_PASSWORD: gptpult_password
+      MYSQL_USER: gptpult
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - gptpult-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+networks:
+  gptpult-network:
+    driver: bridge
+
+volumes:
+  dbdata: 
