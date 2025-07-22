@@ -272,6 +272,10 @@ const props = defineProps({
             site_key: null,
             enabled: false
         })
+    },
+    selected_type: {
+        type: String,
+        default: null
     }
 });
 
@@ -310,22 +314,63 @@ const currentStep = computed(() => {
 
 // Инициализация типов работ
 const initializeWorkTypes = () => {
-    if (isMobile.value) {
-        if (props.document_types.length <= 3) {
-            displayedTypes.value = [...props.document_types];
-            hiddenTypes.value = [];
-        } else {
-            displayedTypes.value = props.document_types.slice(0, 3);
-            hiddenTypes.value = props.document_types.slice(3);
-        }
+    const maxDisplayed = isMobile.value ? 3 : 5;
+    
+    if (props.document_types.length <= maxDisplayed) {
+        displayedTypes.value = [...props.document_types];
+        hiddenTypes.value = [];
     } else {
-        if (props.document_types.length <= 5) {
-            displayedTypes.value = [...props.document_types];
-            hiddenTypes.value = [];
-        } else {
-            displayedTypes.value = props.document_types.slice(0, 5);
-            hiddenTypes.value = props.document_types.slice(5);
+        displayedTypes.value = props.document_types.slice(0, maxDisplayed);
+        hiddenTypes.value = props.document_types.slice(maxDisplayed);
+    }
+};
+
+// Установка выбранного типа работы на основе URL параметра или автовыбор первого
+// Примеры использования:
+// /new?type=курсовая-работа
+// /new?type=курсовая работа  
+// /new?type=диплом
+// /new?type=реферат
+// /new?type=эссе
+// Если параметр не указан, автоматически выбирается первый тип (Отчет о практике)
+const setSelectedType = () => {
+    let targetType = null;
+    
+    // Если передан параметр selected_type, ищем его среди всех типов
+    // Поддерживаемые значения: slug типа документа или название в нижнем регистре
+    if (props.selected_type) {
+        const searchTerm = props.selected_type.toLowerCase().trim();
+        targetType = props.document_types.find(type => 
+            type.slug === props.selected_type || 
+            type.slug === searchTerm ||
+            type.name.toLowerCase() === searchTerm ||
+            type.name.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Если тип не найден или не передан, выбираем первый
+    if (!targetType && props.document_types.length > 0) {
+        targetType = props.document_types[0];
+    }
+    
+    if (targetType) {
+        // Проверяем, есть ли тип в отображаемых
+        const isDisplayed = displayedTypes.value.find(type => type.id === targetType.id);
+        
+        if (!isDisplayed) {
+            // Если типа нет в отображаемых, заменяем последний отображаемый тип
+            const lastDisplayedType = displayedTypes.value.pop();
+            if (lastDisplayedType) {
+                hiddenTypes.value.push(lastDisplayedType);
+            }
+            
+            // Удаляем целевой тип из скрытых и добавляем в отображаемые
+            hiddenTypes.value = hiddenTypes.value.filter(type => type.id !== targetType.id);
+            displayedTypes.value.push(targetType);
         }
+        
+        // Устанавливаем как выбранный
+        form.value.document_type_id = targetType.id;
     }
 };
 
@@ -374,7 +419,12 @@ const checkMobile = () => {
     
     // Если изменился режим (мобильный/десктопный), переинициализируем типы работ
     if (wasMobile !== isMobile.value) {
+        const selectedTypeId = form.value.document_type_id;
         initializeWorkTypes();
+        // Восстанавливаем выбранный тип после переинициализации
+        if (selectedTypeId) {
+            form.value.document_type_id = selectedTypeId;
+        }
     }
 };
 
@@ -511,6 +561,7 @@ const getMobileHintText = () => {
 onMounted(async () => {
     checkMobile();
     initializeWorkTypes();
+    setSelectedType();
     window.addEventListener('resize', checkMobile);
     
     // Инициализируем reCAPTCHA, если включена

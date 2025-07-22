@@ -36,10 +36,14 @@ class NewDocumentController extends Controller
             ]);
         }
 
+        // Получаем параметр type из URL
+        $selectedType = $request->query('type');
+
         // Если лимит позволяет, показываем форму создания
         return Inertia::render('documents/NewDocument', [
             'document_types' => DocumentType::all(),
             'limit_info' => $limitCheck,
+            'selected_type' => $selectedType,
             'recaptcha' => [
                 'site_key' => $this->recaptchaService->getSiteKey(),
                 'enabled' => $this->recaptchaService->isEnabled()
