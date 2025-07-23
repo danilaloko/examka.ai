@@ -312,8 +312,13 @@ const currentStep = computed(() => {
     return 1;
 });
 
-// Инициализация типов работ
+// Инициализация типов работ (используется только при первой загрузке без параметра type)
 const initializeWorkTypes = () => {
+    // Если типы уже инициализированы (например, через setSelectedType), не перезатираем
+    if (displayedTypes.value.length > 0 || hiddenTypes.value.length > 0) {
+        return;
+    }
+    
     const maxDisplayed = isMobile.value ? 3 : 5;
     
     if (props.document_types.length <= maxDisplayed) {
@@ -417,7 +422,7 @@ const getAllAvailableTypes = () => {
 // /new?type=nauchnaya-rabota    - Научно исследовательская работа
 // /new?type=domashka            - Домашняя работа
 //
-// Если параметр не указан, автоматически выбирается первый тип (Отчет о практике)
+// Выбранный тип будет отображаться первым в списке типов работ
 const setSelectedType = () => {
     let targetType = null;
     
@@ -451,19 +456,23 @@ const setSelectedType = () => {
     }
     
     if (targetType) {
-        // Проверяем, есть ли тип в отображаемых
-        const isDisplayed = displayedTypes.value.find(type => type.id === targetType.id);
+        // Создаем новый массив с выбранным типом первым
+        const maxDisplayed = isMobile.value ? 3 : 5;
+        const allTypes = [...props.document_types];
         
-        if (!isDisplayed) {
-            // Если типа нет в отображаемых, заменяем последний отображаемый тип
-            const lastDisplayedType = displayedTypes.value.pop();
-            if (lastDisplayedType) {
-                hiddenTypes.value.push(lastDisplayedType);
-            }
-            
-            // Удаляем целевой тип из скрытых и добавляем в отображаемые
-            hiddenTypes.value = hiddenTypes.value.filter(type => type.id !== targetType.id);
-            displayedTypes.value.push(targetType);
+        // Удаляем целевой тип из общего списка
+        const filteredTypes = allTypes.filter(type => type.id !== targetType.id);
+        
+        // Создаем новый порядок: выбранный тип первый, затем остальные
+        const reorderedTypes = [targetType, ...filteredTypes];
+        
+        // Разделяем на отображаемые и скрытые
+        if (reorderedTypes.length <= maxDisplayed) {
+            displayedTypes.value = [...reorderedTypes];
+            hiddenTypes.value = [];
+        } else {
+            displayedTypes.value = reorderedTypes.slice(0, maxDisplayed);
+            hiddenTypes.value = reorderedTypes.slice(maxDisplayed);
         }
         
         // Устанавливаем как выбранный
@@ -514,11 +523,22 @@ const checkMobile = () => {
     const wasMobile = isMobile.value;
     isMobile.value = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    // Если изменился режим (мобильный/десктопный), переинициализируем типы работ
+    // Если изменился режим (мобильный/десктопный), пересчитываем разделение типов
     if (wasMobile !== isMobile.value) {
         const selectedTypeId = form.value.document_type_id;
-        initializeWorkTypes();
-        // Восстанавливаем выбранный тип после переинициализации
+        const allCurrentTypes = [...displayedTypes.value, ...hiddenTypes.value];
+        const maxDisplayed = isMobile.value ? 3 : 5;
+        
+        // Сохраняем текущий порядок типов и пересчитываем разделение
+        if (allCurrentTypes.length <= maxDisplayed) {
+            displayedTypes.value = [...allCurrentTypes];
+            hiddenTypes.value = [];
+        } else {
+            displayedTypes.value = allCurrentTypes.slice(0, maxDisplayed);
+            hiddenTypes.value = allCurrentTypes.slice(maxDisplayed);
+        }
+        
+        // Восстанавливаем выбранный тип
         if (selectedTypeId) {
             form.value.document_type_id = selectedTypeId;
         }
@@ -657,8 +677,8 @@ const getMobileHintText = () => {
 
 onMounted(async () => {
     checkMobile();
+    setSelectedType(); // Вызываем первым для правильного порядка типов
     initializeWorkTypes();
-    setSelectedType();
     window.addEventListener('resize', checkMobile);
     
     // Инициализируем reCAPTCHA, если включена
