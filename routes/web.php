@@ -20,33 +20,6 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     return view('v5');
 });
-Route::get('/v2', function () {
-    return view('v2');
-});
-Route::get('/v3', function () {
-    return view('v3');
-});
-
-// Временные маршруты для просмотра дизайнов главной страницы
-Route::get('/design1', function () {
-    return view('v4-design1');
-})->name('design1');
-
-Route::get('/design2', function () {
-    return view('v4-design2');
-})->name('design2');
-
-Route::get('/design3', function () {
-    return view('v4-design3');
-})->name('design3');
-
-Route::get('/design4', function () {
-    return view('v4-design4');
-})->name('design4');
-
-Route::get('/design5', function () {
-    return view('v4-design5');
-})->name('design5');
 
 // API роут для получения IP адреса пользователя
 Route::get('/api/user-ip', function () {
@@ -113,11 +86,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{document}/generation-progress', [DocumentGenerationController::class, 'getGenerationProgress'])->name('generation-progress');
     });
 
-    // Маршруты для работы с файлами
-    Route::get('/files/example', function () {
-        return Inertia::render('files/FileExample');
-    })->name('files.example')->middleware(['auth', 'web']);
-
     Route::post('/files/upload', [FilesController::class, 'upload'])->name('files.upload')->middleware(['auth', 'web']);
     Route::get('/files/{file}', [FilesController::class, 'show'])->name('files.show')->middleware(['auth', 'web']);
     Route::get('/files/{file}/download', [FilesController::class, 'download'])->name('files.download')->middleware(['auth', 'web']);
@@ -170,33 +138,6 @@ Route::post('/telegram/auth', [App\Http\Controllers\Auth\AutoAuthController::cla
 Route::get('/payment/complete/{orderId}', [PaymentController::class, 'handlePaymentComplete'])
     ->name('payment.complete');
 
-// Тестовая страница оплаты
-Route::get('/payment/test', [PaymentTestController::class, 'show'])->name('payment.test');
-
-// Тестовая страница ожидания оплаты (для просмотра дизайна)
-Route::get('/payment/waiting-test', function () {
-    return Inertia::render('payment/PaymentWaiting', [
-        'orderId' => 12345,
-        'orderInfo' => [
-            'id' => 12345,
-            'amount' => 500
-        ],
-        'isDocument' => true,
-        'documentId' => 67890
-    ]);
-})->name('payment.waiting.test');
-
-// Временный роут для отладки (удалить после решения проблемы)
-Route::get('/debug/telegram-config', function () {
-    return response()->json([
-        'use_proxy' => config('services.telegram.use_proxy'),
-        'proxy_url' => config('services.telegram.proxy_url') ? 'configured' : 'not configured',
-        'bot_token' => config('services.telegram.bot_token') ? 'configured' : 'not configured',
-        'env_proxy' => env('TELEGRAM_USE_PROXY'),
-        'env_proxy_url' => env('TELEGRAM_PROXY_URL') ? 'configured' : 'not configured',
-    ]);
-})->name('debug.telegram.config');
-
 // Telegram бот роуты (веб-хук должен быть без auth middleware)
 Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])->name('telegram.webhook');
 
@@ -209,124 +150,6 @@ Route::get('/errors/500', [App\Http\Controllers\ErrorController::class, 'error50
 Route::get('/errors/502', [App\Http\Controllers\ErrorController::class, 'error502'])->name('errors.502');
 Route::get('/errors/503', [App\Http\Controllers\ErrorController::class, 'error503'])->name('errors.503');
 
-// Тестовые роуты для демонстрации ошибок (удалить в продакшене)
-Route::get('/test/403', function () { abort(403); })->name('test.403');
-Route::get('/test/404', function () { abort(404); })->name('test.404');
-Route::get('/test/419', function () { throw new \Illuminate\Session\TokenMismatchException(); })->name('test.419');
-Route::get('/test/500', function () { throw new \Exception('Тестовая ошибка сервера'); })->name('test.500');
-Route::get('/telegram/test-mode', [TelegramController::class, 'testMode'])->name('telegram.test-mode');
-
-// Временный роут для тестирования переноса документов (можно удалить позже)
-Route::get('/test/transfer-documents/{fromUserId}/{toUserId}', function ($fromUserId, $toUserId) {
-    $transferService = new \App\Services\Documents\DocumentTransferService();
-    
-    $fromUser = \App\Models\User::find($fromUserId);
-    $toUser = \App\Models\User::find($toUserId);
-    
-    if (!$fromUser || !$toUser) {
-        return response()->json(['error' => 'Пользователи не найдены'], 404);
-    }
-    
-    $result = $transferService->transferDocuments($fromUser, $toUser);
-    
-    return response()->json([
-        'result' => $result,
-        'from_user' => $fromUser->only(['id', 'name', 'email']),
-        'to_user' => $toUser->only(['id', 'name', 'email']),
-        'documents_after_transfer' => \App\Models\Document::where('user_id', $toUser->id)
-            ->get(['id', 'title', 'user_id', 'created_at'])
-    ]);
-})->name('test.transfer-documents');
-
-// Тестовый роут для симуляции Telegram авторизации (можно удалить позже)
-Route::get('/test/telegram-auth/{userId}', function ($userId) {
-    $user = \App\Models\User::find($userId);
-    
-    if (!$user) {
-        return response()->json(['error' => 'Пользователь не найден'], 404);
-    }
-    
-    // Генерируем токен авторизации
-    $telegramService = new \App\Services\Telegram\TelegramBotService();
-    $authToken = $telegramService->generateAuthToken($user);
-    
-    // Симулируем данные пользователя Telegram
-    $telegramUser = [
-        'id' => 123456789,
-        'first_name' => 'Тестовый',
-        'last_name' => 'Пользователь',
-        'username' => 'test_user',
-    ];
-    
-    // Симулируем обработку авторизации через рефлексию
-    $reflection = new \ReflectionClass($telegramService);
-    $method = $reflection->getMethod('handleTelegramAuth');
-    $method->setAccessible(true);
-    
-    $result = $method->invoke($telegramService, 123456789, $telegramUser, $authToken);
-    
-    return response()->json([
-        'auth_token' => $authToken,
-        'telegram_user' => $telegramUser,
-        'auth_result' => $result,
-        'user_before' => $user->only(['id', 'name', 'email', 'telegram_id']),
-        'user_after' => \App\Models\User::find($user->id)->only(['id', 'name', 'email', 'telegram_id']),
-        'documents_count' => \App\Models\Document::where('user_id', $user->id)->count()
-    ]);
-})->name('test.telegram-auth');
-
-// Простой тестовый роут для демонстрации переноса документов при Telegram авторизации
-Route::get('/test/full-flow', function () {
-    $transferService = new \App\Services\Documents\DocumentTransferService();
-    
-    // Находим временного пользователя с документами
-    $tempUser = \App\Models\User::where('email', 'like', '%@auto.user')
-        ->whereHas('documents')
-        ->with('documents')
-        ->first();
-    
-    if (!$tempUser) {
-        return response()->json(['error' => 'Не найден временный пользователь с документами'], 404);
-    }
-    
-    // Создаем нового "авторизованного" пользователя
-    $permanentUser = \App\Models\User::create([
-        'name' => 'Тестовый Авторизованный Пользователь',
-        'email' => 'auth_test_' . time() . '@example.com',
-        'password' => bcrypt('password'),
-        'auth_token' => \Illuminate\Support\Str::random(32),
-        'role_id' => 0,
-        'status' => 1,
-        'telegram_id' => 987654321,
-        'telegram_username' => 'test_auth_user',
-        'telegram_linked_at' => now(),
-    ]);
-    
-    $documentsBeforeTransfer = \App\Models\Document::where('user_id', $tempUser->id)->count();
-    $documentsBefore = \App\Models\Document::where('user_id', $permanentUser->id)->count();
-    
-    // Выполняем перенос
-    $result = $transferService->transferDocuments($tempUser, $permanentUser);
-    
-    $documentsAfter = \App\Models\Document::where('user_id', $permanentUser->id)->count();
-    
-    return response()->json([
-        'status' => 'success',
-        'temp_user' => [
-            'id' => $tempUser->id,
-            'email' => $tempUser->email,
-            'documents_before' => $documentsBeforeTransfer
-        ],
-        'permanent_user' => [
-            'id' => $permanentUser->id,
-            'email' => $permanentUser->email,
-            'documents_before' => $documentsBefore,
-            'documents_after' => $documentsAfter
-        ],
-        'transfer_result' => $result,
-        'documents_transferred' => $documentsAfter - $documentsBefore
-    ]);
-})->name('test.full-flow');
 
 require __DIR__.'/auth.php';
 
